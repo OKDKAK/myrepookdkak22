@@ -28,17 +28,16 @@ function loadPosts(category) {
       listEl.innerHTML = "";
 
       rows.forEach(cols => {
-        // 시트의 실제 순서대로 데이터를 가져옵니다.
-        const title = cols[0]?.trim();
-        const date = cols[1]?.trim();
-        const categoryValue = cols[2]?.trim();
-        const preview = cols[3]?.trim();
-        const docUrl = cols[4]?.trim();   // [4]번 칸: 문서 링크
-        const mediaUrl = cols[5]?.trim(); // [5]번 칸: 유튜브 링크
+        // 시트의 실제 순서와 1:1 매칭 (0부터 시작)
+        const title = cols[0]?.trim();    // 글 제목
+        const date = cols[1]?.trim();     // 날짜
+        const catValue = cols[2]?.trim(); // category (record 등)
+        const preview = cols[3]?.trim();  // 요약 내용
+        const docUrl = cols[4]?.trim();   // 문서 링크
+        const mediaUrl = cols[5]?.trim(); // 유튜브 링크 (이게 중요!)
 
-        if (!title || categoryValue !== category) return;
+        if (!title || catValue !== category) return;
 
-        // 리스트 아이템 생성
         const div = document.createElement("div");
         div.className = "thread";
         div.innerHTML = `
@@ -49,14 +48,11 @@ function loadPosts(category) {
           <div class="thread-preview">${preview}</div>
         `;
 
-        // 클릭했을 때 오른쪽에서 튀어나올 팝업 내용 설정
         div.onclick = () => {
-          let linksHtml = "";
-          if (docUrl && docUrl.includes("http")) {
-            linksHtml += `<p><a href="${docUrl}" target="_blank" class="nav-btn">📄 관련 문서 보기</a></p>`;
-          }
+          // 유튜브 링크가 있으면 버튼을 만들고, 없으면 안 만듭니다.
+          let mediaHtml = "";
           if (mediaUrl && mediaUrl.includes("http")) {
-            linksHtml += `<p><a href="${mediaUrl}" target="_blank" class="nav-btn" style="color:red;">▶ 유튜브/미디어 보기</a></p>`;
+            mediaHtml = `<div style="margin-top:20px;"><a href="${mediaUrl}" target="_blank" class="nav-btn" style="color:red; border:1px solid red; padding:5px 10px; border-radius:4px;">▶ 유튜브 영상 보기</a></div>`;
           }
 
           popupContent.innerHTML = `
@@ -64,9 +60,7 @@ function loadPosts(category) {
             <p class="popup-date">${date}</p>
             <div class="popup-body">
               ${preview.replace(/\n/g, "<br>")}
-              <div style="margin-top:40px; padding-top:20px; border-top:1px solid #ddd;">
-                ${linksHtml}
-              </div>
+              ${mediaHtml}
             </div>
           `;
           popup.classList.remove("hidden");
@@ -74,4 +68,6 @@ function loadPosts(category) {
         listEl.appendChild(div);
       });
     });
+
+  document.getElementById("popupClose").onclick = () => popup.classList.add("hidden");
 }
