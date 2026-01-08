@@ -1,8 +1,8 @@
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcX0j3_F8pyY_IJmdn1T7hvD5u8duo5MGUVmt_PJ0aYLaSVJN1_IwX5QWT1uMuAltdu34PtDgeCwDO/pub?output=csv";
 
-// 1. CSV 데이터 유실 없이 끝까지 읽어내는 함수
+// CSV를 글자 단위로 쪼개는 가장 정교한 엔진 (데이터 유실 0%)
 function parseCSV(text) {
-    const rows = [];
+    const result = [];
     let row = [];
     let field = "";
     let inQuotes = false;
@@ -18,42 +18,38 @@ function parseCSV(text) {
             else if (char === '\r' || char === '\n') {
                 if (field || row.length > 0) {
                     row.push(field);
-                    rows.push(row);
+                    result.push(row);
                     field = ""; row = [];
                 }
                 if (char === '\r' && text[i+1] === '\n') i++;
             } else field += char;
         }
     }
-    if (field || row.length > 0) { row.push(field); rows.push(row); }
-    return rows;
+    if (field || row.length > 0) { row.push(field); result.push(row); }
+    return result;
 }
 
-// 2. 메인 실행 함수
 async function loadPosts(category) {
     const listEl = document.getElementById("thread-list");
-    const popup = document.getElementById("popup");
-    const popupContent = document.getElementById("popupContent");
-
     if (!listEl) return;
 
     try {
-        // 캐시를 무력화하고 구글 서버에서 직접 긁어옴
-        const response = await fetch(`${SHEET_URL}&t=${Date.now()}`);
-        const csvText = await response.text();
-        const allData = parseCSV(csvText).slice(1); // 헤더 제외
+        const res = await fetch(`${SHEET_URL}&t=${Date.now()}`);
+        const text = await res.text();
+        const rows = parseCSV(text);
 
-        listEl.innerHTML = ""; // 기존 목록 비우기
+        listEl.innerHTML = ""; 
         
-        // 중요: 필터링된 모든 데이터를 화면에 추가
-        allData.forEach(cols => {
-            const [title, date, cat, content, docUrl, mediaUrl] = cols;
+        // i=1 부터 시작해서 첫 줄(이름표 줄)은 강제로 버립니다.
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const [title, date, cat, content, doc, media] = row;
 
-            // 카테고리 매칭 (공백 제거 후 비교)
-            if (cat && cat.trim().toLowerCase() === category.toLowerCase()) {
-                const threadDiv = document.createElement("div");
-                threadDiv.className = "thread";
-                threadDiv.innerHTML = `
+            // 카테고리 비교 (앞뒤 공백 다 자르고 소문자로 통일해서 비교)
+            if (cat && cat.trim().toLowerCase() === category.trim().toLowerCase()) {
+                const div = document.createElement("div");
+                div.className = "thread";
+                div.innerHTML = `
                     <div class="thread-header">
                         <span class="thread-title">${title}</span>
                         <span style="float:right; font-size:12px; color:#888;">${date}</span>
@@ -61,29 +57,31 @@ async function loadPosts(category) {
                     <div class="thread-preview">${content || ""}</div>
                 `;
 
-                threadDiv.onclick = () => {
-                    let links = "";
-                    if (docUrl?.includes("http")) links += `<a href="${docUrl}" target="_blank" class="nav-btn" style="display:block; margin-bottom:10px; background:#f0f0f0; text-align:center; padding:10px;">📄 문서 보기</a>`;
-                    if (mediaUrl?.includes("http")) links += `<a href="${mediaUrl}" target="_blank" class="nav-btn" style="display:block; background:red; color:white; text-align:center; padding:10px;">▶ 영상 보기</a>`;
+                div.onclick = () => {
+                    const popup = document.getElementById("popup");
+                    const popupContent = document.getElementById("popupContent");
+                    
+                    let btns = "";
+                    if (doc && doc.includes("http")) btns += `<a href="${doc}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; background:#f0f0f0; text-align:center; padding:10px;">📄 문서 보기</a>`;
+                    if (media && media.includes("http")) btns += `<a href="${media}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; background:red; color:white; text-align:center; padding:10px;">▶ 영상 보기</a>`;
 
                     popupContent.innerHTML = `
                         <h2>${title}</h2>
                         <p class="popup-date">${date}</p>
                         <div class="popup-body" style="white-space:pre-wrap; margin-top:20px;">${content}</div>
-                        <div style="margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">${links}</div>
+                        <div style="margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">${btns}</div>
                     `;
                     popup.classList.remove("hidden");
                 };
-                listEl.appendChild(threadDiv); // 누락 없이 하나씩 추가
+                listEl.appendChild(div);
             }
-        });
-    } catch (e) {
-        console.error("데이터 로딩 실패:", e);
+        }
+    } catch (err) {
+        console.error("연동 실패!", err);
     }
 }
 
-// 팝업 닫기 이벤트 (페이지 로드 시 한 번만 설정)
-document.addEventListener("DOMContentLoaded", () => {
-    const closeBtn = document.getElementById("popupClose");
-    if (closeBtn) closeBtn.onclick = () => document.getElementById("popup").classList.add("hidden");
+// 팝업 닫기 기능
+document.addEventListener("click", (e) => {
+    if (e.target.id === "popupClose") document.getElementById("popup").classList.add("hidden");
 });
