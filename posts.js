@@ -1,8 +1,8 @@
 const SHEET_BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcX0j3_F8pyY_IJmdn1T7hvD5u8duo5MGUVmt_PJ0aYLaSVJN1_IwX5QWT1uMuAltdu34PtDgeCwDO/pub?output=csv";
 
-// CSV의 복잡한 구조(따옴표, 줄바꿈)를 완벽하게 해석하는 함수
+// CSV의 따옴표와 줄바꿈을 완벽하게 처리하는 함수
 function parseCSV(text) {
-    const result = [];
+    const rows = [];
     let row = [];
     let field = "";
     let inQuotes = false;
@@ -21,7 +21,7 @@ function parseCSV(text) {
             else if (char === '\r' || char === '\n') {
                 if (field || row.length > 0) {
                     row.push(field);
-                    result.push(row);
+                    rows.push(row);
                     field = "";
                     row = [];
                 }
@@ -29,8 +29,8 @@ function parseCSV(text) {
             } else { field += char; }
         }
     }
-    if (field || row.length > 0) { row.push(field); result.push(row); }
-    return result;
+    if (field || row.length > 0) { row.push(field); rows.push(row); }
+    return rows;
 }
 
 function loadPosts(category) {
@@ -38,16 +38,17 @@ function loadPosts(category) {
     const popup = document.getElementById("popup");
     const popupContent = document.getElementById("popupContent");
 
-    // 캐시 방지용 타임스탬프 (이게 없으면 수정해도 옛날 데이터가 뜸)
-    const finalUrl = `${SHEET_BASE_URL}&t=${new Date().getTime()}`;
+    // 캐시 방지 (수정 즉시 반영)
+    const finalUrl = `${SHEET_BASE_URL}&t=${Date.now()}`;
 
     fetch(finalUrl)
         .then(res => res.text())
         .then(csvText => {
-            const allRows = parseCSV(csvText).slice(1); // 첫 줄 헤더 제외
+            const data = parseCSV(csvText).slice(1); // 헤더(제목줄) 제외
             listEl.innerHTML = ""; 
-
-            allRows.forEach(cols => {
+            
+            let count = 0;
+            data.forEach(cols => {
                 const title = cols[0]?.trim();
                 const date = cols[1]?.trim();
                 const cat = cols[2]?.trim();
@@ -55,8 +56,9 @@ function loadPosts(category) {
                 const docUrl = cols[4]?.trim() || "";
                 const mediaUrl = cols[5]?.trim() || "";
 
-                // 카테고리 필터링 (공백 무시)
+                // 카테고리가 일치하는 모든 글을 가져옵니다.
                 if (cat && cat.toLowerCase() === category.toLowerCase()) {
+                    count++;
                     const div = document.createElement("div");
                     div.className = "thread";
                     div.innerHTML = `
@@ -69,18 +71,17 @@ function loadPosts(category) {
 
                     div.onclick = () => {
                         let btns = "";
-                        // 링크가 있으면 버튼 생성 (현재 CSS 스타일 유지)
-                        if (docUrl.startsWith("http")) {
-                            btns += `<a href="${docUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; padding:10px; background:#f0f0f0; text-align:center;">📄 문서 보기</a>`;
+                        if (docUrl.includes("http")) {
+                            btns += `<a href="${docUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; background:#f0f0f0;">📄 문서 보기</a>`;
                         }
-                        if (mediaUrl.startsWith("http")) {
-                            btns += `<a href="${mediaUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; padding:10px; background:red; color:white; text-align:center;">▶ 영상 보기</a>`;
+                        if (mediaUrl.includes("http")) {
+                            btns += `<a href="${mediaUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; background:red; color:white;">▶ 유튜브/미디어 보기</a>`;
                         }
 
                         popupContent.innerHTML = `
                             <h2>${title}</h2>
                             <p class="popup-date">${date}</p>
-                            <div class="popup-body" style="white-space: pre-wrap; margin-top:20px;">${preview}</div>
+                            <div class="popup-body">${preview.replace(/\n/g, "<br>")}</div>
                             <div style="margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">${btns}</div>
                         `;
                         popup.classList.remove("hidden");
@@ -88,10 +89,6 @@ function loadPosts(category) {
                     listEl.appendChild(div);
                 }
             });
-        })
-        .catch(err => console.error("연동 실패:", err));
-
-    // 팝업 닫기 이벤트
-    const closeBtn = document.getElementById("popupClose");
-    if (closeBtn) closeBtn.onclick = () => popup.classList.add("hidden");
+            console.log(`${category} 카테고리 글 ${count}개를 불러왔습니다.`);
+        });
 }
