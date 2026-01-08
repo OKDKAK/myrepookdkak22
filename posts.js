@@ -12,7 +12,8 @@ function parseCSV(text) {
     else if (char === "\n" && !inQuotes) { row.push(current); rows.push(row); row = []; current = ""; }
     else current += char;
   }
-  row.push(current); rows.push(row);
+  row.push(current);
+  rows.push(row);
   return rows;
 }
 
@@ -29,7 +30,7 @@ function loadPosts(category) {
       listEl.innerHTML = "";
 
       rows.forEach(cols => {
-        // CSV 순서: title(0), date(1), category(2), preview(3)
+        // 시트 순서: 0:제목, 1:날짜, 2:카테고리, 3:내용
         const title = cols[0]?.trim();
         const date = cols[1]?.trim();
         const categoryValue = cols[2]?.trim();
@@ -37,6 +38,7 @@ function loadPosts(category) {
 
         if (!title || categoryValue !== category) return;
 
+        // CSS의 .thread 구조 생성
         const div = document.createElement("div");
         div.className = "thread"; 
         div.innerHTML = `
@@ -51,7 +53,9 @@ function loadPosts(category) {
           popupContent.innerHTML = `
             <h2>${title}</h2>
             <p class="popup-date">${date}</p>
-            <div class="popup-body">${content.replace(/\n/g, "<br>")}</div>
+            <div class="popup-body">
+              ${content.replace(/\n/g, "<br>")}
+            </div>
           `;
           popup.classList.remove("hidden");
         };
@@ -59,5 +63,7 @@ function loadPosts(category) {
       });
     });
 
-  popupClose.onclick = () => popup.classList.add("hidden");
+  if (popupClose) {
+    popupClose.onclick = () => popup.classList.add("hidden");
+  }
 }
