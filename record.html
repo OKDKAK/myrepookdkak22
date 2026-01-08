@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Record</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="top-nav">
+  <a href="about.html" class="nav-btn">ABOUT</a>
+  <a href="record.html" class="nav-btn">RECORD</a>
+  <a href="design.html" class="nav-btn">DESIGN</a>
+  <a href="archive.html" class="nav-btn">ARCHIVE</a>
+</header>
+
+<main class="list-page">
+  <h1 class="page-title">RECORD</h1>
+  <div id="thread-list"></div>
+</main>
+
+<!-- 팝업 -->
+<div id="popup" class="popup hidden">
+  <button id="popupClose">×</button>
+  <div id="popupContent"></div>
+</div>
+
+<script src="posts.js"></script>
+<script>
+  loadPosts("record");
+</script>
+
+</body>
+</html>
