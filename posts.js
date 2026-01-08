@@ -5,22 +5,12 @@ function parseCSV(text) {
   let row = [];
   let current = "";
   let inQuotes = false;
-
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      row.push(current);
-      current = "";
-    } else if (char === "\n" && !inQuotes) {
-      row.push(current);
-      rows.push(row);
-      row = [];
-      current = "";
-    } else {
-      current += char;
-    }
+    if (char === '"') inQuotes = !inQuotes;
+    else if (char === "," && !inQuotes) { row.push(current); current = ""; }
+    else if (char === "\n" && !inQuotes) { row.push(current); rows.push(row); row = []; current = ""; }
+    else current += char;
   }
   row.push(current);
   rows.push(row);
@@ -29,60 +19,43 @@ function parseCSV(text) {
 
 function loadPosts(category) {
   const listEl = document.getElementById("thread-list");
-  
   fetch(SHEET_URL)
     .then(res => res.text())
     .then(text => {
-      // 1. CSV 데이터 파싱 (첫 번째 헤더 줄 제외)
-      const rows = parseCSV(text).slice(1);
-      listEl.innerHTML = ""; // 기존 내용 초기화
+      const rows = parseCSV(text).slice(1); // 헤더 제외 
+      listEl.innerHTML = ""; 
 
       rows.forEach(cols => {
-        // [0]title, [1]date, [2]category, [3]preview 순서 (CSV 기준)
-        const title = cols[0]?.trim();
-        const date = cols[1]?.trim();
-        const categoryValue = cols[2]?.trim();
-        const content = cols[3]?.trim();
+        // 시트 순서: 0:제목, 1:날짜, 2:카테고리, 3:내용
+        const title = cols[0]?.trim() || "제목 없음";
+        const date = cols[1]?.trim() || "";
+        const categoryValue = cols[2]?.trim() || "";
+        const content = cols[3]?.trim() || "내용이 없습니다.";
 
-        // 디버깅용: 데이터가 들어오는지 확인 (나중에 지우셔도 됩니다)
-        console.log("불러온 데이터:", { title, categoryValue, content });
-
-        // 데이터가 비어있거나 카테고리가 다르면 건너뜀
-        if (!title || !categoryValue) return;
+        // 카테고리가 일치하는지 확인 (대소문자 무시) 
         if (categoryValue.toLowerCase() !== category.toLowerCase()) return;
 
-        // 화면에 게시글 카드 생성
         const div = document.createElement("div");
-        div.className = "thread";
-        div.style.cursor = "pointer";
+        div.className = "thread"; // style.css의 디자인이 적용됨
         div.innerHTML = `
-          <div class="thread-header">
-            <span class="thread-title" style="font-weight:bold;">${title}</span>
-            <span class="thread-date" style="float:right; font-size:0.8em;">${date}</span>
+          <div class="thread-header" style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:5px;">
+            <strong class="thread-title">${title}</strong>
+            <span class="thread-date" style="font-size:0.8em; color:#888;">${date}</span>
           </div>
-          <div class="thread-preview" style="margin-top:5px; color:#555;">${content}</div>
+          <div class="thread-preview" style="padding-top:10px; color:#444;">${content}</div>
         `;
 
-        // 클릭하면 팝업 띄우기
+        // 클릭 시 팝업 열기 
         div.onclick = () => {
           const popup = document.getElementById("popup");
-          const popupContent = document.getElementById("popupContent");
-          if (popup && popupContent) {
-            popupContent.innerHTML = `
-              <h2>${title}</h2>
-              <p style="color:#888;">${date}</p>
-              <hr>
-              <div style="margin-top:15px; line-height:1.6;">${content.replace(/\n/g, "<br>")}</div>
-            `;
-            popup.style.display = "flex";
-          }
+          document.getElementById("popupContent").innerHTML = `
+            <h2 style="margin-bottom:5px;">${title}</h2>
+            <small>${date}</small><hr>
+            <div style="margin-top:15px;">${content.replace(/\n/g, "<br>")}</div>
+          `;
+          popup.style.display = "flex";
         };
-
         listEl.appendChild(div);
       });
-    })
-    .catch(err => {
-      console.error("데이터 로딩 에러:", err);
-      listEl.innerHTML = "<p>데이터를 불러오는 데 실패했습니다.</p>";
     });
 }
