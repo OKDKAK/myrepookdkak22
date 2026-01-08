@@ -159,7 +159,7 @@ body {
 /* 본문 */
 .page-body p {
   font-size: 14px;          /* 🔽 줄임 */
-   margin: 9px 0;   /* 기본은 1em이라 큼 */
+   margin: 5px 0;   /* 기본은 1em이라 큼 */
   line-height: 1.6;
 }
 
