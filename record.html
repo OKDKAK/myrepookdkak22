@@ -1,4 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>RECORD</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top-nav">
+  <a href="index.html" class="nav-btn">HOME</a>
+  <a href="about.html" class="nav-btn">ABOUT</a>
+  <a href="record.html" class="nav-btn">RECORD</a>
+  <a href="design.html" class="nav-btn">DESIGN</a>
+  <a href="archive.html" class="nav-btn">ARCHIVE</a>
+</header>
+
+<main id="thread-list">
+  </main>
+
+<div id="popup" class="hidden">
+  <div class="popup-window">
+    <span id="popupClose" style="cursor:pointer; float:right;">&times;</span>
+    <div id="popupContent"></div>
+  </div>
+</div>
+
 <script src="posts.js"></script>
 <script>
-  loadPosts();
+  // 페이지 로드 시 "record" 카테고리의 글을 불러옵니다. 
+  window.onload = () => {
+    loadPosts("record");
+  };
 </script>
+
+</body>
+</html>
