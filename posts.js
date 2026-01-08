@@ -24,38 +24,54 @@ function loadPosts(category) {
   fetch(SHEET_URL)
     .then(res => res.text())
     .then(text => {
-      const rows = parseCSV(text).slice(1); // 첫 줄(헤더) 제외
-      listEl.innerHTML = ""; 
+      const rows = parseCSV(text).slice(1);
+      listEl.innerHTML = "";
 
       rows.forEach(cols => {
-        // ★ 사용자님의 시트 순서에 정확히 맞춤 ★
-        const title = cols[0]?.trim();    // 첫 번째: title
-        const date = cols[1]?.trim();     // 두 번째: date
-        const catValue = cols[2]?.trim(); // 세 번째: category
-        const content = cols[3]?.trim();  // 네 번째: preview
+        // 시트의 실제 순서대로 데이터를 가져옵니다.
+        const title = cols[0]?.trim();
+        const date = cols[1]?.trim();
+        const categoryValue = cols[2]?.trim();
+        const preview = cols[3]?.trim();
+        const docUrl = cols[4]?.trim();   // [4]번 칸: 문서 링크
+        const mediaUrl = cols[5]?.trim(); // [5]번 칸: 유튜브 링크
 
-        // 카테고리가 일치하는 데이터만 화면에 생성
-        if (catValue === category) {
-          const div = document.createElement("div");
-          div.className = "thread";
-          div.innerHTML = `
-            <div class="thread-header">
-              <span class="thread-title">${title}</span>
-              <span style="float:right; font-size:12px; color:#888;">${date}</span>
+        if (!title || categoryValue !== category) return;
+
+        // 리스트 아이템 생성
+        const div = document.createElement("div");
+        div.className = "thread";
+        div.innerHTML = `
+          <div class="thread-header">
+            <span class="thread-title">${title}</span>
+            <span style="float:right; font-size:12px; color:#888;">${date}</span>
+          </div>
+          <div class="thread-preview">${preview}</div>
+        `;
+
+        // 클릭했을 때 오른쪽에서 튀어나올 팝업 내용 설정
+        div.onclick = () => {
+          let linksHtml = "";
+          if (docUrl && docUrl.includes("http")) {
+            linksHtml += `<p><a href="${docUrl}" target="_blank" class="nav-btn">📄 관련 문서 보기</a></p>`;
+          }
+          if (mediaUrl && mediaUrl.includes("http")) {
+            linksHtml += `<p><a href="${mediaUrl}" target="_blank" class="nav-btn" style="color:red;">▶ 유튜브/미디어 보기</a></p>`;
+          }
+
+          popupContent.innerHTML = `
+            <h2>${title}</h2>
+            <p class="popup-date">${date}</p>
+            <div class="popup-body">
+              ${preview.replace(/\n/g, "<br>")}
+              <div style="margin-top:40px; padding-top:20px; border-top:1px solid #ddd;">
+                ${linksHtml}
+              </div>
             </div>
-            <div class="thread-preview">${content}</div>
           `;
-
-          div.onclick = () => {
-            popupContent.innerHTML = `
-              <h2>${title}</h2>
-              <p class="popup-date">${date}</p>
-              <div class="popup-body">${content.replace(/\n/g, "<br>")}</div>
-            `;
-            popup.classList.remove("hidden");
-          };
-          listEl.appendChild(div);
-        }
+          popup.classList.remove("hidden");
+        };
+        listEl.appendChild(div);
       });
     });
 }
