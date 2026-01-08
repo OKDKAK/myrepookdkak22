@@ -19,24 +19,8 @@
 
 <script src="posts.js"></script>
 <script>
-  const container = document.getElementById("thread-list");
-
-  const recordPosts = posts.filter(
-    post => post.category === "record"
-  );
-
-  recordPosts.forEach(post => {
-    const el = document.createElement("div");
-    el.className = "thread";
-    el.innerHTML = `
-      <div class="thread-header">
-        <div class="thread-title">${post.title}</div>
-        <div class="thread-date">${post.date}</div>
-      </div>
-      <div class="thread-preview">${post.content}</div>
-    `;
-    container.appendChild(el);
-  });
+  // 🔥 이 한 줄이 전부
+  loadPosts("record");
 </script>
 
 </body>
