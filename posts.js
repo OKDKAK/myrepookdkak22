@@ -1,6 +1,4 @@
-// 🔴 아래 주소가 사용자님의 시트 주소가 맞나요? 틀리면 무조건 바꿔야 합니다!
-// 구글 시트 > 파일 > 공유 > 웹에 게시 > '시트1' > 'CSV' 선택 후 나온 주소여야 합니다.
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLeQeFdWLt6yUX0daihRFirATwDLOS01O8G7U2NMlHVPdfAXEpD1Btp4VzmhxccXghSXawTgo9PUPS/pub?gid=0&single=true&output=csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcX0j3_F8pyY_IJmdn1T7hvD5u8duo5MGUVmt_PJ0aYLaSVJN1_IwX5QWT1uMuAltdu34PtDgeCwDO/pub?output=csv";
 
 function parseCSV(text) {
   const rows = [];
