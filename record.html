@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>기록</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>RECORD</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -16,20 +15,28 @@
   <a href="archive.html" class="nav-btn">ARCHIVE</a>
 </header>
 
-<main class="list-page">
-  <h1 class="page-title">RECORD</h1>
-  <div id="thread-list"></div>
-</main>
-
-<!-- 팝업 -->
-<div id="popup" class="popup hidden">
-  <button id="popupClose">×</button>
-  <div id="popupContent"></div>
-</div>
+<main id="thread-list"></main>
 
 <script src="posts.js"></script>
 <script>
-  loadPosts("record");
+  const container = document.getElementById("thread-list");
+
+  const recordPosts = posts.filter(
+    post => post.category === "record"
+  );
+
+  recordPosts.forEach(post => {
+    const el = document.createElement("div");
+    el.className = "thread";
+    el.innerHTML = `
+      <div class="thread-header">
+        <div class="thread-title">${post.title}</div>
+        <div class="thread-date">${post.date}</div>
+      </div>
+      <div class="thread-preview">${post.content}</div>
+    `;
+    container.appendChild(el);
+  });
 </script>
 
 </body>
