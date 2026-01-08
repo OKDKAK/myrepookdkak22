@@ -4,42 +4,34 @@
   <meta charset="UTF-8">
   <title>RECORD</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* 박스 디자인 추가 */
-    .thread { 
-      background: #f9f9f9; border: 1px solid #ddd; padding: 15px; 
-      margin-bottom: 10px; cursor: pointer; border-radius: 5px;
-    }
-    .thread:hover { background: #f0f0f0; }
-    #popup { 
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-      background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; 
-    }
-    .popup-window { background: white; padding: 20px; width: 80%; max-width: 500px; border-radius: 10px; position: relative; }
-    .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
-  </style>
 </head>
 <body>
 
 <header class="top-nav">
   <a href="index.html" class="nav-btn">HOME</a>
+  <a href="about.html" class="nav-btn">ABOUT</a>
   <a href="record.html" class="nav-btn">RECORD</a>
+  <a href="design.html" class="nav-btn">DESIGN</a>
+  <a href="archive.html" class="nav-btn">ARCHIVE</a>
 </header>
 
-<main id="thread-list">
-  <p>데이터를 불러오는 중...</p>
+<main class="list-page">
+  <div class="page-title">RECORD</div>
+  <div id="thread-list">
+    </div>
 </main>
 
-<div id="popup">
-  <div class="popup-window">
-    <span class="close-btn" onclick="document.getElementById('popup').style.display='none'">&times;</span>
-    <div id="popupContent"></div>
-  </div>
+<div id="popup" class="popup hidden">
+  <button id="popupClose">&times;</button>
+  <div id="popupContent"></div>
 </div>
 
 <script src="posts.js"></script>
 <script>
-  window.onload = () => loadPosts("record"); // record 카테고리 로드
+  window.onload = () => {
+    loadPosts("record");
+  };
 </script>
+
 </body>
 </html>
