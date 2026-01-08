@@ -5,50 +5,41 @@
   <title>RECORD</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 팝업 필수 스타일 (스타일 시트가 없을 경우 대비) */
+    /* 박스 디자인 추가 */
+    .thread { 
+      background: #f9f9f9; border: 1px solid #ddd; padding: 15px; 
+      margin-bottom: 10px; cursor: pointer; border-radius: 5px;
+    }
+    .thread:hover { background: #f0f0f0; }
     #popup { 
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-      background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000;
+      background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; 
     }
-    .popup-window { 
-      background: white; padding: 30px; border-radius: 8px; 
-      max-width: 600px; width: 90%; position: relative; max-height: 80vh; overflow-y: auto;
-    }
-    .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; border: none; background: none; }
+    .popup-window { background: white; padding: 20px; width: 80%; max-width: 500px; border-radius: 10px; position: relative; }
+    .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
   </style>
 </head>
 <body>
 
 <header class="top-nav">
   <a href="index.html" class="nav-btn">HOME</a>
-  <a href="about.html" class="nav-btn">ABOUT</a>
   <a href="record.html" class="nav-btn">RECORD</a>
-  <a href="design.html" class="nav-btn">DESIGN</a>
-  <a href="archive.html" class="nav-btn">ARCHIVE</a>
 </header>
 
 <main id="thread-list">
-  <p>게시글을 불러오는 중입니다...</p>
+  <p>데이터를 불러오는 중...</p>
 </main>
 
 <div id="popup">
   <div class="popup-window">
-    <button class="close-btn" onclick="document.getElementById('popup').style.display='none'">&times;</button>
+    <span class="close-btn" onclick="document.getElementById('popup').style.display='none'">&times;</span>
     <div id="popupContent"></div>
   </div>
 </div>
 
 <script src="posts.js"></script>
 <script>
-  // 페이지가 완전히 로드된 후 함수 실행
-  document.addEventListener("DOMContentLoaded", () => {
-    if (typeof loadPosts === "function") {
-      loadPosts("record");
-    } else {
-      console.error("posts.js가 제대로 로드되지 않았습니다.");
-    }
-  });
+  window.onload = () => loadPosts("record"); // record 카테고리 로드
 </script>
-
 </body>
 </html>
