@@ -12,8 +12,7 @@ function parseCSV(text) {
     else if (char === "\n" && !inQuotes) { row.push(current); rows.push(row); row = []; current = ""; }
     else current += char;
   }
-  row.push(current);
-  rows.push(row);
+  row.push(current); rows.push(row);
   return rows;
 }
 
@@ -21,49 +20,42 @@ function loadPosts(category) {
   const listEl = document.getElementById("thread-list");
   const popup = document.getElementById("popup");
   const popupContent = document.getElementById("popupContent");
-  const popupClose = document.getElementById("popupClose");
 
   fetch(SHEET_URL)
     .then(res => res.text())
     .then(text => {
-      const rows = parseCSV(text).slice(1);
-      listEl.innerHTML = "";
+      const rows = parseCSV(text).slice(1); // 첫 줄(헤더) 제외
+      listEl.innerHTML = ""; 
 
       rows.forEach(cols => {
-        // 시트 순서: 0:제목, 1:날짜, 2:카테고리, 3:내용
-        const title = cols[0]?.trim();
-        const date = cols[1]?.trim();
-        const categoryValue = cols[2]?.trim();
-        const content = cols[3]?.trim();
+        // ★ 사용자님의 시트 순서에 정확히 맞춤 ★
+        const title = cols[0]?.trim();    // 첫 번째: title
+        const date = cols[1]?.trim();     // 두 번째: date
+        const catValue = cols[2]?.trim(); // 세 번째: category
+        const content = cols[3]?.trim();  // 네 번째: preview
 
-        if (!title || categoryValue !== category) return;
-
-        // CSS의 .thread 구조 생성
-        const div = document.createElement("div");
-        div.className = "thread"; 
-        div.innerHTML = `
-          <div class="thread-header">
-            <span class="thread-title">${title}</span>
-            <span style="float:right; font-size:12px; color:#888;">${date}</span>
-          </div>
-          <div class="thread-preview">${content}</div>
-        `;
-
-        div.onclick = () => {
-          popupContent.innerHTML = `
-            <h2>${title}</h2>
-            <p class="popup-date">${date}</p>
-            <div class="popup-body">
-              ${content.replace(/\n/g, "<br>")}
+        // 카테고리가 일치하는 데이터만 화면에 생성
+        if (catValue === category) {
+          const div = document.createElement("div");
+          div.className = "thread";
+          div.innerHTML = `
+            <div class="thread-header">
+              <span class="thread-title">${title}</span>
+              <span style="float:right; font-size:12px; color:#888;">${date}</span>
             </div>
+            <div class="thread-preview">${content}</div>
           `;
-          popup.classList.remove("hidden");
-        };
-        listEl.appendChild(div);
+
+          div.onclick = () => {
+            popupContent.innerHTML = `
+              <h2>${title}</h2>
+              <p class="popup-date">${date}</p>
+              <div class="popup-body">${content.replace(/\n/g, "<br>")}</div>
+            `;
+            popup.classList.remove("hidden");
+          };
+          listEl.appendChild(div);
+        }
       });
     });
-
-  if (popupClose) {
-    popupClose.onclick = () => popup.classList.add("hidden");
-  }
 }
