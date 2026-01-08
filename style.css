@@ -1,0 +1,49 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+body {
+  margin: 0;
+  background: #eee;
+  font-family: 'Pretendard', sans-serif;
+  color: #000;
+}
+
+/* ───────── 상단 네비 ───────── */
+.top-nav {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 28px;
+  z-index: 100;
+}
+
+.nav-btn {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0055ff;
+  text-decoration: none; /* 밑줄 제거 */
+  letter-spacing: 0.04em;
+}
+
+/* ───────── 메인 정중앙 ───────── */
+.main-center {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;    /* 세로 중앙 */
+  justify-content: center;/* 가로 중앙 */
+}
+
+/* 유튜브 크기 고정 */
+.video-wrap {
+  width: 720px;
+  aspect-ratio: 16 / 9;
+}
+
+.video-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
