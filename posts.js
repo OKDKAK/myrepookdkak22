@@ -1,6 +1,9 @@
 const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLeQeFdWLt6yUX0daihRFirATwDLOS01O8G7U2NMlHVPdfAXEpD1Btp4VzmhxccXghSXawTgo9PUPS/pub?gid=0&single=true&output=csv";
 
+/**
+ * CSV 파서 (기본)
+ */
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -13,10 +16,10 @@ function parseCSV(text) {
     if (char === '"') {
       inQuotes = !inQuotes;
     } else if (char === "," && !inQuotes) {
-      row.push(current);
+      row.push(current.trim());
       current = "";
     } else if (char === "\n" && !inQuotes) {
-      row.push(current);
+      row.push(current.trim());
       rows.push(row);
       row = [];
       current = "";
@@ -25,11 +28,17 @@ function parseCSV(text) {
     }
   }
 
-  row.push(current);
-  rows.push(row);
+  if (current || row.length) {
+    row.push(current.trim());
+    rows.push(row);
+  }
+
   return rows;
 }
 
+/**
+ * 게시글 로드
+ */
 function loadPosts(category) {
   const listEl = document.getElementById("thread-list");
   const popup = document.getElementById("popup");
@@ -39,17 +48,26 @@ function loadPosts(category) {
   fetch(SHEET_URL)
     .then(res => res.text())
     .then(text => {
-      const rows = parseCSV(text).slice(1);
+      const rows = parseCSV(text).slice(1); // 헤더 제거
       listEl.innerHTML = "";
 
-      rows.forEach(cols => {
-        const title = cols[0]?.trim();
-        const date = cols[1]?.trim();
-        const content = cols[2]?.trim();
-        const categoryValue = cols[3]?.trim(); // 🔴 핵심 수정
+      let rendered = 0;
 
+      rows.forEach(cols => {
+        const title = (cols[0] || "").trim();
+        const date = (cols[1] || "").trim();
+        const content = (cols[2] || "").trim();
+        const categoryValue = (cols[3] || "").trim().toLowerCase();
+
+        // 필수 필드
         if (!title || !content) return;
-        if (categoryValue !== category) return;
+
+        // 🔥 핵심: category가 없으면 통과
+        if (category && categoryValue) {
+          if (categoryValue !== category.toLowerCase()) return;
+        }
+
+        rendered++;
 
         const div = document.createElement("div");
         div.className = "thread";
@@ -62,6 +80,8 @@ function loadPosts(category) {
         `;
 
         div.onclick = () => {
+          if (!popup) return;
+
           popupContent.innerHTML = `
             <h2>${title}</h2>
             <p class="popup-date">${date}</p>
@@ -74,9 +94,20 @@ function loadPosts(category) {
 
         listEl.appendChild(div);
       });
+
+      // 아무 것도 안 나올 때
+      if (rendered === 0) {
+        listEl.innerHTML = `<p style="opacity:.6">게시글이 없습니다.</p>`;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      listEl.innerHTML = `<p style="color:red">데이터를 불러오지 못했습니다.</p>`;
     });
 
-  popupClose.onclick = () => {
-    popup.classList.add("hidden");
-  };
+  if (popupClose) {
+    popupClose.onclick = () => {
+      popup.classList.add("hidden");
+    };
+  }
 }
