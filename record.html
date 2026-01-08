@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <title>RECORD</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 팝업 관련 필수 스타일 */
+    .hidden { display: none; }
+    #popup { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; }
+    #popup.hidden { display: none; }
+    .popup-window { background:white; padding:20px; max-width:500px; width:90%; position:relative; }
+  </style>
 </head>
 <body>
 
@@ -20,14 +27,14 @@
 
 <div id="popup" class="hidden">
   <div class="popup-window">
-    <span id="popupClose" style="cursor:pointer; float:right;">&times;</span>
+    <button id="popupClose" onclick="document.getElementById('popup').classList.add('hidden')">닫기</button>
     <div id="popupContent"></div>
   </div>
 </div>
 
 <script src="posts.js"></script>
 <script>
-  // 페이지 로드 시 "record" 카테고리의 글을 불러옵니다. 
+  // 페이지 로드 시 'record' 카테고리 글만 필터링해서 가져옴 
   window.onload = () => {
     loadPosts("record");
   };
