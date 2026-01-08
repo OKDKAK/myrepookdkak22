@@ -1,6 +1,6 @@
 const SHEET_BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcX0j3_F8pyY_IJmdn1T7hvD5u8duo5MGUVmt_PJ0aYLaSVJN1_IwX5QWT1uMuAltdu34PtDgeCwDO/pub?output=csv";
 
-// CSV를 한 글자씩 검사해서 나누는 가장 정교한 방식
+// CSV의 복잡한 구조(따옴표, 줄바꿈)를 완벽하게 해석하는 함수
 function parseCSV(text) {
     const result = [];
     let row = [];
@@ -38,13 +38,13 @@ function loadPosts(category) {
     const popup = document.getElementById("popup");
     const popupContent = document.getElementById("popupContent");
 
-    // 캐시 방지용 타임스탬프 (이게 있어야 시트 수정이 바로 반영됨)
+    // 캐시 방지용 타임스탬프 (이게 없으면 수정해도 옛날 데이터가 뜸)
     const finalUrl = `${SHEET_BASE_URL}&t=${new Date().getTime()}`;
 
     fetch(finalUrl)
         .then(res => res.text())
         .then(csvText => {
-            const allRows = parseCSV(csvText).slice(1); // 헤더 제외
+            const allRows = parseCSV(csvText).slice(1); // 첫 줄 헤더 제외
             listEl.innerHTML = ""; 
 
             allRows.forEach(cols => {
@@ -55,7 +55,7 @@ function loadPosts(category) {
                 const docUrl = cols[4]?.trim() || "";
                 const mediaUrl = cols[5]?.trim() || "";
 
-                // 카테고리 필터링 (오타 방지를 위해 앞뒤 공백 제거)
+                // 카테고리 필터링 (공백 무시)
                 if (cat && cat.toLowerCase() === category.toLowerCase()) {
                     const div = document.createElement("div");
                     div.className = "thread";
@@ -69,17 +69,18 @@ function loadPosts(category) {
 
                     div.onclick = () => {
                         let btns = "";
-                        if (docUrl.includes("http")) {
-                            btns += `<a href="${docUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; background:#f0f0f0;">📄 문서 보기</a>`;
+                        // 링크가 있으면 버튼 생성 (현재 CSS 스타일 유지)
+                        if (docUrl.startsWith("http")) {
+                            btns += `<a href="${docUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; padding:10px; background:#f0f0f0; text-align:center;">📄 문서 보기</a>`;
                         }
-                        if (mediaUrl.includes("http")) {
-                            btns += `<a href="${mediaUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; background:red; color:white;">▶ 유튜브/미디어 보기</a>`;
+                        if (mediaUrl.startsWith("http")) {
+                            btns += `<a href="${mediaUrl}" target="_blank" class="nav-btn" style="display:block; margin-top:10px; padding:10px; background:red; color:white; text-align:center;">▶ 영상 보기</a>`;
                         }
 
                         popupContent.innerHTML = `
                             <h2>${title}</h2>
                             <p class="popup-date">${date}</p>
-                            <div class="popup-body">${preview.replace(/\n/g, "<br>")}</div>
+                            <div class="popup-body" style="white-space: pre-wrap; margin-top:20px;">${preview}</div>
                             <div style="margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">${btns}</div>
                         `;
                         popup.classList.remove("hidden");
@@ -87,5 +88,10 @@ function loadPosts(category) {
                     listEl.appendChild(div);
                 }
             });
-        });
+        })
+        .catch(err => console.error("연동 실패:", err));
+
+    // 팝업 닫기 이벤트
+    const closeBtn = document.getElementById("popupClose");
+    if (closeBtn) closeBtn.onclick = () => popup.classList.add("hidden");
 }
