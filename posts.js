@@ -1,5 +1,5 @@
 const SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhHOlbANC2OQsXqBTGywuHN3Q0HuhNPHD1E5H4kkvu7MpKBpUu0YwwgoexQ5pc65myoYXyXUfcrOvJ/pub?output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLeQeFdWLt6yUX0daihRFirATwDLOS01O8G7U2NMlHVPdfAXEpD1Btp4VzmhxccXghSXawTgo9PUPS/pub?gid=0&single=true&output=csv";
 
 function loadPosts(category) {
   const listEl = document.getElementById("thread-list");
