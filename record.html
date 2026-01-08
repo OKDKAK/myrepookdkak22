@@ -22,13 +22,12 @@
 </main>
 
 <div id="popup" class="popup hidden">
-  <button id="popupClose" style="cursor:pointer; font-size:24px;">&times;</button>
+  <button id="popupClose">&times;</button>
   <div id="popupContent"></div>
 </div>
 
 <script src="posts.js"></script>
 <script>
-  // 로딩 완료 후 "record" 카테고리만 호출 
   window.onload = () => {
     loadPosts("record");
   };
